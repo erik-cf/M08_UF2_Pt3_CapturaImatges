@@ -1,13 +1,14 @@
 package com.example.capturaimatges;
 
+import androidx.annotation.IntDef;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -34,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     // Elements que té i util·litza la classe
     ImageView imgApp;
-    Button button;
+    Button ferFoto;
+    Button eliminaFoto;
     File storageDir;
     File photo;
     String currentPhotoPath;
@@ -45,8 +47,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Trobem els components pel seu ID:
-        button = findViewById(R.id.button);
+        ferFoto = findViewById(R.id.ferFoto);
         imgApp = findViewById(R.id.imageApp);
+        eliminaFoto = findViewById(R.id.eliminaFoto);
+        eliminaFoto.setEnabled(false);
 
         // Recollim el lloc on es desen les imatges a 'storageDir'
         storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -64,10 +68,16 @@ public class MainActivity extends AppCompatActivity {
             imgApp.setImageURI(photoURI);
         }
 
-        button.setOnClickListener(new View.OnClickListener() {
+        ferFoto.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Si fem click al botó, comencem comprobacions de sobreescriptura:
                 sobreescriurePhoto();
+            }
+        });
+
+        eliminaFoto.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View view) {
+                eliminaPhoto();
             }
         });
 
@@ -182,6 +192,22 @@ public class MainActivity extends AppCompatActivity {
         } else {
 
             return null;
+        }
+    }
+
+    public void eliminaPhoto(){
+        if(photo != null && photo.exists()){
+            photo.delete();
+            imgApp.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.nophoto, null));
+            eliminaFoto.setEnabled(false);
+        }else
+            Toast.makeText(this, "No hi ha cap foto per eliminar!", Toast.LENGTH_SHORT).show();
+    }
+
+    protected void onResume() {
+        super.onResume();
+        if (photo != null && photo.exists()) {
+            eliminaFoto.setEnabled(true);
         }
     }
 }
